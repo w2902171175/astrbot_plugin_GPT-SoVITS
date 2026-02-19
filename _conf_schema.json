@@ -128,6 +128,6 @@
     "type": "string",
     "default": "",
     "description": "GPT-SoVITS 的 outputs 文件夹绝对路径",
-    "hint": "填写后将在语音发送成功 5 秒后自动删除服务端生成的 wav，避免磁盘堆积；留空则不删除。例：E:\\8_Github\\10_GPT-SoVITS\\2_GPT-SoVITS-1007-cu124\\outputs"
+    "hint": "填写后将在语音发送成功 5 秒后自动删除服务端生成的 wav，避免磁盘堆积；留空则不删除。"
   }
 }
