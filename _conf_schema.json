@@ -1,0 +1,96 @@
+{
+  "api_host": {
+    "type": "string",
+    "default": "localhost",
+    "description": "GPT-SoVITS 服务运行的 IP 地址"
+  },
+  "api_port": {
+    "type": "int",
+    "default": 8000,
+    "minimum": 1,
+    "maximum": 65535,
+    "description": "GPT-SoVITS 服务端口"
+  },
+  "prob": {
+    "type": "float",
+    "default": 100.0,
+    "minimum": 0.0,
+    "maximum": 100.0,
+    "description": "触发概率（0-100，表示百分比）"
+  },
+  "version": {
+    "type": "string",
+    "default": "v4",
+    "enum": ["v3", "v4", "v2", "v2Pro", "v2ProPlus"],
+    "description": "模型版本 (GSVI 文件夹结构对应)"
+  },
+  "gpt_model_name": {
+    "type": "string",
+    "default": "",
+    "description": "GPT 模型名（需带前缀，如【GSVI】或【经典】）"
+  },
+  "sovits_model_name": {
+    "type": "string",
+    "default": "",
+    "description": "SoVITS 模型名（需带前缀，如【GSVI】或【经典】）"
+  },
+  "ref_audio_path": {
+    "type": "string",
+    "default": "",
+    "description": "参考音频路径（绝对路径）"
+  },
+  "prompt_text": {
+    "type": "text",
+    "default": "",
+    "description": "参考音频对应的文本"
+  },
+  "prompt_text_lang": {
+    "type": "string",
+    "default": "中文",
+    "enum": ["中文", "英文", "日文", "中英混合", "日英混合", "多语种混合"],
+    "description": "参考音频的语言"
+  },
+  "text_lang": {
+    "type": "string",
+    "default": "中英混合",
+    "enum": ["中文", "英文", "日文", "中英混合", "日英混合", "多语种混合"],
+    "description": "合成文本的语言"
+  },
+  "send_text_with_audio": {
+    "type": "bool",
+    "default": false,
+    "description": "发送语音时是否同时也发送文字"
+  },
+  "text_limit": {
+    "type": "int",
+    "default": 0,
+    "description": "最长文本限制（0 表示不限制，超过将被截断）"
+  },
+  "cooldown": {
+    "type": "int",
+    "default": 0,
+    "description": "群聊冷却时间（秒，0 表示无冷却）"
+  },
+  "split_sentence": {
+    "type": "bool",
+    "default": true,
+    "description": "是否开启长句切分"
+  },
+  "top_k": {
+    "type": "int",
+    "default": 10
+  },
+  "top_p": {
+    "type": "float",
+    "default": 1.0
+  },
+  "temperature": {
+    "type": "float",
+    "default": 1.0
+  },
+  "speed_facter": {
+    "type": "float",
+    "default": 1.0,
+    "description": "语速系数"
+  }
+}
