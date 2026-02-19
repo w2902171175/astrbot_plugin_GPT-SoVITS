@@ -1,11 +1,10 @@
-import os
 import time
 import random
 import uuid
-import wave
 import asyncio
 from typing import Dict, Any
 from pathlib import Path
+from urllib.parse import urlparse
 
 from astrbot.api.event import AstrMessageEvent
 from astrbot.api.star import Context, Star, register
@@ -13,7 +12,6 @@ from astrbot.api import logger
 import astrbot.api.message_components as Comp
 
 from astrbot.core.star.register import register_on_decorating_result as on_decorating_result
-from astrbot.core.star.register import register_command as command
 
 
 @register(
@@ -25,11 +23,16 @@ from astrbot.core.star.register import register_command as command
 class GPTSoVITSTTSLocal(Star):
     def __init__(self, context: Context, config: dict):
         super().__init__(context)
-        self.config = config
         
-        self.gpt_model_name = config.get('gpt_model_name', '')
-        self.sovits_model_name = config.get('sovits_model_name', '')
-        self.version = config.get('version', 'v4') # 新增版本配置
+        model_prefix = config.get('model_prefix', '【GSVI】')
+        if model_prefix == '无前缀':
+            model_prefix = ''
+        raw_gpt = config.get('gpt_model_name', '')
+        raw_sovits = config.get('sovits_model_name', '')
+        self.gpt_model_name = f"{model_prefix}{raw_gpt}" if raw_gpt else ''
+        self.sovits_model_name = f"{model_prefix}{raw_sovits}" if raw_sovits else ''
+        self.character_name = config.get('character_name', '').strip()
+        self.version = config.get('version', 'v4')
         self.ref_audio_path = config.get('ref_audio_path', '')
         self.prompt_text = config.get('prompt_text', '')
         self.prompt_text_lang = config.get('prompt_text_lang', '中文')
@@ -40,7 +43,7 @@ class GPTSoVITSTTSLocal(Star):
         self.cooldown = int(config.get('cooldown', 0))
         self.send_text_with_audio = bool(config.get('send_text_with_audio', False))
         
-        self.top_k = int(config.get('top_k', 5))
+        self.top_k = int(config.get('top_k', 10))
         self.top_p = float(config.get('top_p', 1.0))
         self.temperature = float(config.get('temperature', 1.0))
         self.speed_facter = float(config.get('speed_facter', 1.0))
@@ -48,6 +51,7 @@ class GPTSoVITSTTSLocal(Star):
 
         self.api_host = config.get('api_host', 'localhost')
         self.api_port = int(config.get('api_port', 8000))
+        self.outputs_path = config.get('outputs_path', '').strip()
 
         self.base_url = f"http://{self.api_host}:{self.api_port}"
         self.temp_dir = Path(__file__).parent / "temp_audio"
@@ -56,7 +60,8 @@ class GPTSoVITSTTSLocal(Star):
         self._session_state: Dict[str, Any] = {}
         
         logger.info(f"[GPTSoVITSTTSLocal] 插件已加载，TTS 服务地址: {self.base_url}")
-        logger.info(f"[GPTSoVITSTTSLocal] GPT模型: {self.gpt_model_name}, SoVITS模型: {self.sovits_model_name}")
+        char_tag = f" | 角色: {self.character_name}" if self.character_name else ""
+        logger.info(f"[GPTSoVITSTTSLocal] GPT模型: {self.gpt_model_name}, SoVITS模型: {self.sovits_model_name}{char_tag}")
 
     async def _post(self, endpoint: str, data: dict, return_json=True):
         import httpx
@@ -76,8 +81,8 @@ class GPTSoVITSTTSLocal(Star):
                     json_data = resp.json()
                     logger.debug(f"[GPTSoVITSTTSLocal] 收到 JSON 响应: {json_data}")
                     return json_data
-                except:
-                   # 解析 JSON 失败，可能直接返回了二进制流（虽然不应该在 return_json=True 时发生）
+                except Exception:
+                   # 解析 JSON 失败，可能直接返回了二进制流
                    return resp.content
 
         except Exception as e:
@@ -172,6 +177,10 @@ class GPTSoVITSTTSLocal(Star):
             # 注意：该接口返回的是 JSON，包含 audio_url
             resp = await self._post("/infer_classic", payload)
             
+            if not isinstance(resp, dict):
+                logger.error(f"[GPTSoVITSTTSLocal] TTS 接口返回了非预期格式（可能是 JSON 解析失败）: {type(resp)}")
+                return
+
             audio_url = resp.get("audio_url")
             if not audio_url:
                 logger.error(f"[GPTSoVITSTTSLocal] TTS 接口未返回 audio_url: {resp}")
@@ -195,6 +204,15 @@ class GPTSoVITSTTSLocal(Star):
             
             logger.info(f"[GPTSoVITSTTSLocal] 音频已保存: {file_path}")
 
+            # 提取服务端 outputs 中的原始 wav 路径，供后续清理
+            server_wav_path = None
+            if self.outputs_path:
+                parsed_url = urlparse(audio_url)
+                wav_filename = Path(parsed_url.path).name
+                if wav_filename:
+                    server_wav_path = Path(self.outputs_path) / wav_filename
+                    logger.debug(f"[GPTSoVITSTTSLocal] 将在 5 秒后清理服务端文件: {server_wav_path}")
+
             # 修改消息链
             # 移除原来的纯文本组件（如果只有文本，就全移除了）
             if plain_indices:
@@ -208,13 +226,17 @@ class GPTSoVITSTTSLocal(Star):
                 
                 # 如果开启了同时也发送文字
                 if self.send_text_with_audio:
-                     result.chain.insert(insert_pos + 1, Comp.Plain(f"\n[原文]\n{full_text}"))
+                     result.chain.insert(insert_pos + 1, Comp.Plain(f"\n[STT]\n{full_text}"))
             else:
                  # 理论上不会进这里，因为前面判断了 full_text
                  result.chain.append(Comp.Record(file=str(file_path)))
             
-            # 清理临时文件
-            asyncio.create_task(self._cleanup_later(file_path))
+            # 清理本地临时文件（60 秒后）
+            asyncio.create_task(self._cleanup_later(file_path, delay=60))
+
+            # 清理服务端 outputs 中的原始 wav（5 秒后，语音发送成功后）
+            if server_wav_path:
+                asyncio.create_task(self._cleanup_later(server_wav_path, delay=5))
 
         except Exception as e:
             logger.error(f"[GPTSoVITSTTSLocal] TTS 转换异常: {e}")

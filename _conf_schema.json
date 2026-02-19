@@ -2,95 +2,132 @@
   "api_host": {
     "type": "string",
     "default": "localhost",
-    "description": "GPT-SoVITS 服务运行的 IP 地址"
+    "description": "GPT-SoVITS 服务运行的 IP 地址",
+    "hint": "本机运行填 localhost 或 127.0.0.1，部署在其他机器则填对应 IP"
   },
   "api_port": {
     "type": "int",
     "default": 8000,
     "minimum": 1,
     "maximum": 65535,
-    "description": "GPT-SoVITS 服务端口"
+    "description": "GPT-SoVITS 服务端口",
+    "hint": "默认 8000，若与其他服务冲突可在 GPT-SoVITS 启动时修改后同步更新此处"
+  },
+  "character_name": {
+    "type": "string",
+    "default": "",
+    "description": "角色名称（仅用于标识，不影响推理）",
+    "hint": "仅作备注用途，会在插件启动日志中显示，方便多实例时区分角色"
   },
   "prob": {
     "type": "float",
     "default": 100.0,
     "minimum": 0.0,
     "maximum": 100.0,
-    "description": "触发概率（0-100，表示百分比）"
+    "description": "触发概率（0-100，表示百分比）",
+    "hint": "每条 LLM 回复触发 TTS 的概率，100 表示每次都触发，50 表示约一半概率触发"
   },
   "version": {
     "type": "string",
     "default": "v4",
-    "enum": ["v3", "v4", "v2", "v2Pro", "v2ProPlus"],
-    "description": "模型版本 (GSVI 文件夹结构对应)"
+    "options": ["v2", "v2Pro", "v2ProPlus", "v3", "v4"],
+    "description": "模型版本 (GSVI 文件夹结构对应)",
+    "hint": "需与所用 GPT/SoVITS 模型版本一致，v4 为当前最新版，选错版本会导致推理失败"
+  },
+  "model_prefix": {
+    "type": "string",
+    "default": "【GSVI】",
+    "options": ["【GSVI】", "【经典】", "无前缀"],
+    "description": "GPT / SoVITS 模型名前缀，将自动拼接到下方两个模型名之前（选择\"无前缀\"则直接使用原始模型名）"
   },
   "gpt_model_name": {
     "type": "string",
     "default": "",
-    "description": "GPT 模型名（需带前缀，如【GSVI】或【经典】）"
+    "description": "GPT 模型名",
+    "hint": "即 .ckpt 后缀的文件，请使用绝对路径，路径两端不要带双引号"
   },
   "sovits_model_name": {
     "type": "string",
     "default": "",
-    "description": "SoVITS 模型名（需带前缀，如【GSVI】或【经典】）"
+    "description": "SoVITS 模型名",
+    "hint": "即 .pth 后缀的文件，请使用绝对路径，路径两端不要带双引号"
   },
   "ref_audio_path": {
     "type": "string",
     "default": "",
-    "description": "参考音频路径（绝对路径）"
+    "description": "参考音频路径（绝对路径）",
+    "hint": "用于音色克隆的参考音频，建议使用 3~10 秒的清晰单人语音，路径两端不要带双引号"
   },
   "prompt_text": {
     "type": "text",
     "default": "",
-    "description": "参考音频对应的文本"
+    "description": "参考音频对应的文本",
+    "hint": "填写参考音频中说的文字内容，与音频语言保持一致，影响音色克隆质量"
   },
   "prompt_text_lang": {
     "type": "string",
     "default": "中文",
-    "enum": ["中文", "英文", "日文", "中英混合", "日英混合", "多语种混合"],
+    "options": ["中文", "英文", "日文", "中英混合", "日英混合", "多语种混合"],
     "description": "参考音频的语言"
   },
   "text_lang": {
     "type": "string",
     "default": "中英混合",
-    "enum": ["中文", "英文", "日文", "中英混合", "日英混合", "多语种混合"],
+    "options": ["中文", "英文", "日文", "中英混合", "日英混合", "多语种混合"],
     "description": "合成文本的语言"
   },
   "send_text_with_audio": {
     "type": "bool",
     "default": false,
-    "description": "发送语音时是否同时也发送文字"
+    "description": "发送语音时是否同时也发送文字",
+    "hint": "开启后会在语音消息后附带原文，方便在不方便听音频时阅读"
   },
   "text_limit": {
     "type": "int",
     "default": 0,
-    "description": "最长文本限制（0 表示不限制，超过将被截断）"
+    "description": "最长文本限制（0 表示不限制，超过将被截断）",
+    "hint": "防止超长回复导致推理耗时过长，建议设为 100~200，0 表示不限制"
   },
   "cooldown": {
     "type": "int",
     "default": 0,
-    "description": "群聊冷却时间（秒，0 表示无冷却）"
+    "description": "群聊冷却时间（秒，0 表示无冷却）",
+    "hint": "同一群聊两次触发 TTS 的最短间隔，避免频繁占用资源，0 表示无限制"
   },
   "split_sentence": {
     "type": "bool",
     "default": true,
-    "description": "是否开启长句切分"
+    "description": "是否开启长句切分",
+    "hint": "开启后将按标点自动切分长句再合并推理，可改善长文本的语音自然度，通常建议开启"
   },
   "top_k": {
     "type": "int",
-    "default": 10
+    "default": 10,
+    "description": "Top-K 采样",
+    "hint": "每步从概率最高的 K 个 token 中采样，越小越保守稳定，越大越多样随机，推荐 5~20"
   },
   "top_p": {
     "type": "float",
-    "default": 1.0
+    "default": 1.0,
+    "description": "Top-P 采样",
+    "hint": "累计概率截断，越小越保守，1.0 表示不限制，推荐保持 1.0"
   },
   "temperature": {
     "type": "float",
-    "default": 1.0
+    "default": 1.0,
+    "description": "温度系数",
+    "hint": "控制随机性，越低越稳定保守，越高越随机多变，推荐 0.8~1.2"
   },
   "speed_facter": {
     "type": "float",
     "default": 1.0,
-    "description": "语速系数"
+    "description": "语速系数",
+    "hint": "控制合成语速，1.0 为正常速度，小于 1.0 变慢，大于 1.0 变快，推荐 0.8~1.2"
+  },
+  "outputs_path": {
+    "type": "string",
+    "default": "",
+    "description": "GPT-SoVITS 的 outputs 文件夹绝对路径",
+    "hint": "填写后将在语音发送成功 5 秒后自动删除服务端生成的 wav，避免磁盘堆积；留空则不删除。例：E:\\8_Github\\10_GPT-SoVITS\\2_GPT-SoVITS-1007-cu124\\outputs"
   }
 }
