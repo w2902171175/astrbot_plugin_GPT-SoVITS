@@ -1,6 +1,6 @@
-# 🎙️ astrbot_plugin_GPT-SoVITS
-
 <div align="center">
+
+# 🎙️ astrbot_plugin_GPT-SoVITS
 
 ![AstrBot](https://img.shields.io/badge/AstrBot-Plugin-blue?style=flat-square)
 ![License](https://img.shields.io/badge/License-AGPL--3.0-green?style=flat-square)
