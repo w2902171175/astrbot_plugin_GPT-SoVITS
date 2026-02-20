@@ -154,3 +154,15 @@
 
 本项目采用 **GNU Affero General Public License v3.0 (AGPL-3.0)** 许可证，详情请查看 [LICENSE](LICENSE) 文件。
 
+---
+
+## ☕ 赞助一杯奶茶
+
+如果这个插件对你有帮助，欢迎请我喝杯奶茶 🧋，感谢支持！
+
+<div align="center">
+  <img src="assets/wechat_pay.jpg" alt="微信赞赏码" width="240"/>
+  <br/>
+  <sub>微信扫码赞赏</sub>
+</div>
+
