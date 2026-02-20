@@ -123,6 +123,13 @@
 
 ---
 
+## 致谢
+
+- 感谢 **@花儿不哭、@红血球AE3803、@白菜工厂1145号员工、@AI-Hobbyist** 大佬们提供的 [GPT-SoVITS V4 推理特化一键包](https://www.modelscope.cn/models/aihobbyist/GPT-SoVITS-Inference/files)
+- 感谢 **@Amnemon** 大佬的 [genie_tts_local](https://github.com/Amnemon/genie_tts_local) 插件提供的思路
+
+---
+
 ## 许可证
 
 本项目采用 **GNU Affero General Public License v3.0 (AGPL-3.0)** 许可证，详情请查看 [LICENSE](LICENSE) 文件。
