@@ -67,7 +67,7 @@ class GPTSoVITSTTSLocal(Star):
         import httpx
         try:
             logger.debug(f"[GPTSoVITSTTSLocal] 正在请求 {self.base_url}{endpoint}，参数: {data}")
-            async with httpx.AsyncClient(timeout=60) as client: # TTS 生成可能较慢，增加超时
+            async with httpx.AsyncClient(timeout=300) as client: # TTS 生成可能较慢，增加超时（长文本合成可能超过60秒）
                 resp = await client.post(f"{self.base_url}{endpoint}", json=data)
                 
                 if not return_json:
