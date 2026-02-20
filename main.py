@@ -101,7 +101,7 @@ class GPTSoVITSTTSLocal(Star):
             return None
 
     @on_decorating_result()
-    async def on_decorating_result(self, event: AstrMessageEvent):
+    async def on_decorating_result(self, event: AstrMessageEvent, *args):
         """
         LLM 回复后触发，进行 TTS 转换
         """
