@@ -1,5 +1,5 @@
 name: astrbot_plugin_GPT-SoVITS
-desc: 本地运行的 GPT-SoVITS-1007-cu124 的 Astrbot 文本转语音插件
+desc: 本地运行的 GPT-SoVITS-1007-cu124 的 Astrbot 文本转语音插件。
 help: 基于本地部署的 GPT-SoVITS 模型，将文本合成为语音
 version: v1.0.0
 author: w2902171175
