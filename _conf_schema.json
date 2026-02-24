@@ -44,13 +44,13 @@
     "type": "string",
     "default": "",
     "description": "GPT 模型名",
-    "hint": "即 .ckpt 后缀的文件，请使用绝对路径，路径两端不要带双引号"
+    "hint": "即 .ckpt 后缀的文件，只需填文件名"
   },
   "sovits_model_name": {
     "type": "string",
     "default": "",
     "description": "SoVITS 模型名",
-    "hint": "即 .pth 后缀的文件，请使用绝对路径，路径两端不要带双引号"
+    "hint": "即 .pth 后缀的文件，只需填文件名"
   },
   "ref_audio_path": {
     "type": "string",
