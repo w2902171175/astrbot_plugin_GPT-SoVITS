@@ -52,6 +52,7 @@ class GPTSoVITSTTSLocal(Star):
         self.api_host = config.get('api_host', 'localhost')
         self.api_port = int(config.get('api_port', 8000))
         self.outputs_path = config.get('outputs_path', '').strip()
+        self.tts_timeout = int(config.get('tts_timeout', 5)) * 60  # 转换为秒
 
         self.base_url = f"http://{self.api_host}:{self.api_port}"
         self.temp_dir = Path(__file__).parent / "temp_audio"
@@ -67,7 +68,7 @@ class GPTSoVITSTTSLocal(Star):
         import httpx
         try:
             logger.debug(f"[GPTSoVITSTTSLocal] 正在请求 {self.base_url}{endpoint}，参数: {data}")
-            async with httpx.AsyncClient(timeout=300) as client: # TTS 生成可能较慢，增加超时（长文本合成可能超过60秒）
+            async with httpx.AsyncClient(timeout=self.tts_timeout) as client: # TTS 生成超时由用户配置（tts_timeout，单位分钟）
                 resp = await client.post(f"{self.base_url}{endpoint}", json=data)
                 
                 if not return_json:

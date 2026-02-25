@@ -129,5 +129,12 @@
     "default": "",
     "description": "GPT-SoVITS 的 outputs 文件夹绝对路径",
     "hint": "填写后将在语音发送成功 5 秒后自动删除服务端生成的 wav，避免磁盘堆积；留空则不删除。"
+  },
+  "tts_timeout": {
+    "type": "int",
+    "default": 5,
+    "options": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+    "description": "TTS 合成请求超时时间（分钟）",
+    "hint": "超过此时间未收到响应则视为超时失败，长文本或低性能机器可适当调大，默认 5 分钟"
   }
 }
