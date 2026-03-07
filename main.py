@@ -215,22 +215,31 @@ class GPTSoVITSTTSLocal(Star):
                     logger.debug(f"[GPTSoVITSTTSLocal] 将在 5 秒后清理服务端文件: {server_wav_path}")
 
             # 修改消息链
-            # 移除原来的纯文本组件（如果只有文本，就全移除了）
+            # 构建音频组件，并将 text 设为空字符串，
+            # 防止下游插件遍历 chain 拼接 text 时因 None 导致 join 报错
+            record_comp = Comp.Record(file=str(file_path))
+            try:
+                if getattr(record_comp, 'text', None) is None:
+                    record_comp.text = ""
+            except Exception:
+                pass
+
             if plain_indices:
                 # 从后往前删，避免索引偏移
                 for i in sorted(plain_indices, reverse=True):
                     del result.chain[i]
-                
-                # 插入音频组件到原来的第一个文本的位置
-                insert_pos = plain_indices[0]
-                result.chain.insert(insert_pos, Comp.Record(file=str(file_path)))
-                
-                # 如果开启了同时也发送文字
+
+                insert_pos = min(plain_indices[0], len(result.chain))
+
                 if self.send_text_with_audio:
-                     result.chain.insert(insert_pos + 1, Comp.Plain(f"\n[STT]\n{full_text}"))
+                    # 先插入文本再插入音频，保证文本组件在前
+                    result.chain.insert(insert_pos, Comp.Plain(f"\n[STT]\n{full_text}"))
+                    result.chain.insert(insert_pos + 1, record_comp)
+                else:
+                    result.chain.insert(insert_pos, record_comp)
             else:
                  # 理论上不会进这里，因为前面判断了 full_text
-                 result.chain.append(Comp.Record(file=str(file_path)))
+                 result.chain.append(record_comp)
             
             # 清理本地临时文件（60 秒后）
             asyncio.create_task(self._cleanup_later(file_path, delay=60))
