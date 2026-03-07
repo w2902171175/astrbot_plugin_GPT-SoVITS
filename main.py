@@ -106,6 +106,14 @@ class GPTSoVITSTTSLocal(Star):
         """
         LLM 回复后触发，进行 TTS 转换
         """
+        # 防御：框架热重载时 functools.partial 可能双重绑定 self，
+        # 导致 event 实际上是插件实例，真正的 event 被挤到 args 里
+        if not isinstance(event, AstrMessageEvent) and args:
+            event = args[0]
+        if not isinstance(event, AstrMessageEvent):
+            logger.warning("[GPTSoVITSTTSLocal] on_decorating_result 收到非预期参数类型，跳过")
+            return
+
         result = event.get_result()
         if not result or not result.chain:
             return
