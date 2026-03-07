@@ -18,7 +18,7 @@ from astrbot.core.star.register import register_on_decorating_result as on_decor
     "gpt_sovits_tts_local",
     "Amnemon",
     "支持本地 GPT-SoVITS 的文字转语音插件",
-    "1.0.0"
+    "1.7.1"
 )
 class GPTSoVITSTTSLocal(Star):
     def __init__(self, context: Context, config: dict):
