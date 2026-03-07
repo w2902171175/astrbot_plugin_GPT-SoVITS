@@ -61,20 +61,20 @@
   "prompt_text": {
     "type": "text",
     "default": "",
-    "description": "参考音频对应的文本",
+    "description": "参考文本",
     "hint": "填写参考音频中说的文字内容，与音频语言保持一致，影响音色克隆质量"
   },
   "prompt_text_lang": {
     "type": "string",
     "default": "中文",
-    "options": ["中文", "英文", "日文", "中英混合", "日英混合", "多语种混合"],
-    "description": "参考音频的语言"
+    "options": ["中文", "英语", "日语", "粤语", "韩语"],
+    "description": "参考文本语言"
   },
   "text_lang": {
     "type": "string",
     "default": "中英混合",
-    "options": ["中文", "英文", "日文", "中英混合", "日英混合", "多语种混合"],
-    "description": "合成文本的语言"
+    "options": ["中文", "英语", "日语", "粤语", "韩语", "中英混合", "日英混合", "粤英混合", "韩英混合", "多语种混合", "多语种混合(粤语)"],
+    "description": "文本语言"
   },
   "send_text_with_audio": {
     "type": "bool",
