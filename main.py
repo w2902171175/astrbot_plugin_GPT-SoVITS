@@ -6,12 +6,10 @@ from typing import Dict, Any
 from pathlib import Path
 from urllib.parse import urlparse
 
-from astrbot.api.event import AstrMessageEvent
+from astrbot.api.event import AstrMessageEvent, filter
 from astrbot.api.star import Context, Star, register
 from astrbot.api import logger
 import astrbot.api.message_components as Comp
-
-from astrbot.core.star.register import register_on_decorating_result as on_decorating_result
 
 
 @register(
@@ -101,19 +99,11 @@ class GPTSoVITSTTSLocal(Star):
             logger.error(f"[GPTSoVITSTTSLocal] 下载音频失败 {url}: {e}")
             return None
 
-    @on_decorating_result()
-    async def on_decorating_result(self, event: AstrMessageEvent, *args):
+    @filter.on_decorating_result()
+    async def on_decorating_result(self, event: AstrMessageEvent):
         """
         LLM 回复后触发，进行 TTS 转换
         """
-        # 防御：框架热重载时 functools.partial 可能双重绑定 self，
-        # 导致 event 实际上是插件实例，真正的 event 被挤到 args 里
-        if not isinstance(event, AstrMessageEvent) and args:
-            event = args[0]
-        if not isinstance(event, AstrMessageEvent):
-            logger.warning("[GPTSoVITSTTSLocal] on_decorating_result 收到非预期参数类型，跳过")
-            return
-
         result = event.get_result()
         if not result or not result.chain:
             return
